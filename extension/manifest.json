@@ -1,0 +1,23 @@
+{
+  "manifest_version": 2,
+  "minimum_chrome_version": "35",
+  "version": "0.0.1",
+  "name": "KoJira",
+  "description": "KornFerry Jira products SSO authentication patch",
+  "permissions": [
+    "tabs",
+    "https://wiki-jirait.kornferry.com/*",
+    "https://jirait.kornferry.com/*",
+    "http://wiki-jirait.kornferry.com/*",
+    "http://jirait.kornferry.com/*"
+  ],
+  "background": {
+    "scripts": [
+      "background.js"
+    ],
+    "persistent": false
+  },
+  "browser_action": {
+    "default_popup": "popup/content.html"
+  }
+}
