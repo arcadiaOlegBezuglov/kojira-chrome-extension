@@ -1,3 +1,5 @@
+const tabsInfo = new Map();
+
 const urlMatchers = [
   'https://wiki-jirait.kornferry.com/*',
   'https://jirait.kornferry.com/*',
@@ -22,17 +24,24 @@ const modifyQuery = (url) => {
 }
 
 const processTab = tab => {
-  const url = modifyQuery(modifyScheme(tab.url));
-  if (tab.url !== url) {
-    chrome.tabs.update(tab.id, {url: url});
+  const id = tab.id;
+  const info = tabsInfo.get(id);
+  if (!info || !info.includes(tab.url)) {
+    const url = modifyQuery(modifyScheme(tab.url));
+    if (tab.url !== url) {
+      chrome.tabs.update(id, {url: url}, _ => tabsInfo.set(id, [tab.url, url]));
+    }
   }
 }
 
-const processTabs = _ =>
+const processTabs = _ => {
   chrome.tabs.query({url: urlMatchers}, tabs =>
     tabs.forEach(processTab)
   );
+  console.log(tabsInfo.entries());
+}
 
-chrome.tabs.onUpdated.addListener(_ => processTabs());
-
-chrome.runtime.onInstalled.addListener(_ => processTabs());
+chrome.tabs.onRemoved.addListener(tabId => tabsInfo.delete(tabId));
+chrome.tabs.onReplaced.addListener((addedTabId, removedTabId) => tabsInfo.delete(removedTabId));
+chrome.tabs.onUpdated.addListener(processTabs);
+chrome.runtime.onInstalled.addListener(processTabs);
